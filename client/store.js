@@ -12,8 +12,19 @@ const defaultStore = {
   comments
 }
 
-const store = createStore(rootReducer, defaultStore)
+const enhancers = compose(
+  window.devToolsExtension ? window.devToolsExtension() : f => f
+)
+
+const store = createStore(rootReducer, defaultStore, enhancers)
 
 export const history = syncHistoryWithStore(browserHistory, store)
+
+if (module.hot) {
+  module.hot.accept('./reducers', () => {
+    const nextRootReducer = require('./reducers/index').default
+    store.replaceReducer(nextRootReducer)
+  })
+}
 
 export default store
